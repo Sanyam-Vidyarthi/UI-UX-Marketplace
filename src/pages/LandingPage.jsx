@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import Navbar from '../components/Navbar';
 import ComponentCard from '../components/ComponentCard';
@@ -189,11 +188,15 @@ const LandingPage = () => {
                 <div className="container">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                         <div className="col-span-1 md:col-span-2">
-                            <div className="flex items-center gap-2 mb-6">
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-pink-600 flex items-center justify-center text-white font-bold">
-                                    <Sparkles size={16} fill="white" />
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="relative flex items-center justify-center w-8 h-8 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(124,58,237,0.3)]">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-fuchsia-600 to-cyan-600 opacity-100" />
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="relative z-10 text-white">
+                                        <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="white" strokeWidth="2" strokeOpacity="0.5" />
+                                        <path d="M15 19V5L9 19V5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
                                 </div>
-                                <span className="text-xl font-bold text-white">UXMarket</span>
+                                <span className="text-xl font-bold text-white tracking-tight">Nebulyn <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400">UI</span></span>
                             </div>
                             <p className="text-gray-400 text-lg leading-relaxed max-w-md">
                                 The ultimate resource for premium, copy-paste UI components. Built for developers who care about design.
