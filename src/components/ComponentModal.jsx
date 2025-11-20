@@ -1,0 +1,118 @@
+import React from 'react';
+import Button from './Button';
+import ComponentPreview from './ComponentPreview';
+
+const ComponentModal = ({ component, onClose, onCopy }) => {
+    if (!component) return null;
+
+    const codeSnippet = component.code || `
+// ${component.title}
+// Copy this code to your project
+
+<div className="component-wrapper">
+  {/* Implementation details would go here */}
+  <button className="btn-primary">
+    ${component.title}
+  </button>
+</div>
+  `.trim();
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(codeSnippet);
+            if (onCopy) onCopy();
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    };
+
+    return (
+        <div style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.8)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem'
+        }} onClick={onClose}>
+            <div style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-highlight)',
+                borderRadius: '24px',
+                width: '100%',
+                maxWidth: '800px',
+                maxHeight: '90vh',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+            }} onClick={e => e.stopPropagation()}>
+
+                {/* Header */}
+                <div style={{
+                    padding: '1.5rem 2rem',
+                    borderBottom: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <h2 style={{ fontSize: '1.5rem' }}>{component.title}</h2>
+                    <button onClick={onClose} style={{
+                        color: 'var(--text-secondary)',
+                        fontSize: '1.5rem',
+                        padding: '0.5rem'
+                    }}>&times;</button>
+                </div>
+
+                {/* Content */}
+                <div style={{ padding: '2rem', overflowY: 'auto' }}>
+                    <div style={{
+                        height: '300px',
+                        background: 'var(--bg-secondary)',
+                        borderRadius: '16px',
+                        marginBottom: '2rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid var(--border-subtle)',
+                        padding: '2rem',
+                        overflow: 'hidden'
+                    }}>
+                        <ComponentPreview component={component} />
+                    </div>
+
+                    <h3 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>Source Code</h3>
+                    <div style={{
+                        background: '#0d0d0d',
+                        padding: '1.5rem',
+                        borderRadius: '12px',
+                        fontFamily: 'monospace',
+                        fontSize: '0.9rem',
+                        color: '#e5e5e5',
+                        overflowX: 'auto',
+                        border: '1px solid var(--border-subtle)'
+                    }}>
+                        <pre>{codeSnippet}</pre>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div style={{
+                    padding: '1.5rem 2rem',
+                    borderTop: '1px solid var(--border-subtle)',
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: '1rem'
+                }}>
+                    <Button variant="secondary" onClick={onClose}>Close</Button>
+                    <Button variant="primary" onClick={handleCopy}>Copy Code</Button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default ComponentModal;
