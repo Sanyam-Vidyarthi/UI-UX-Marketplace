@@ -309,3 +309,44 @@ button {
 .spotlight-card:hover::before {
   opacity: 1;
 }
+
+/* Premium Input */
+.input-premium {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.input-premium:focus {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-primary), inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+.input-premium::placeholder {
+  color: var(--text-muted);
+}
+
+/* Glass Card Hover */
+.glass-card-hover {
+  transition: all var(--transition-smooth);
+}
+
+.glass-card-hover:hover {
+  transform: translateY(-4px);
+  background: rgba(30, 30, 30, 0.8);
+  border-color: var(--border-highlight);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Glow Text */
+.text-glow {
+  text-shadow: 0 0 20px var(--accent-glow);
+}
+
+.text-glow-hover:hover {
+  text-shadow: 0 0 20px var(--accent-glow);
+}

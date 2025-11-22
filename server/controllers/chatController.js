@@ -7,11 +7,11 @@ function getOpenAIClient() {
         throw new Error('OPENAI_API_KEY is not configured in environment variables');
     }
 
-    // Configure for OpenRouter instead of OpenAI
+    // Configure for DeepSeek API
     // eslint-disable-next-line no-undef
     return new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
-        baseURL: 'https://openrouter.ai/api/v1',
+        baseURL: process.env.OPENAI_BASE_URL || 'https://api.deepseek.com',
     });
 }
 
@@ -54,19 +54,19 @@ export const chat = async (req, res) => {
             { role: 'user', content: message }
         ];
 
-        // Get OpenRouter client (lazy initialization)
+        // Get DeepSeek client
         const openai = getOpenAIClient();
 
         const completion = await openai.chat.completions.create({
             messages: messages,
-            model: 'deepseek/deepseek-chat',  // Using DeepSeek model via OpenRouter
+            model: 'deepseek-chat',  // Using DeepSeek's chat model
         });
 
         const response = completion.choices[0].message.content;
 
         res.json({ response });
     } catch (error) {
-        console.error('OpenRouter API Error:', error.response ? error.response.data : error.message);
+        console.error('DeepSeek API Error:', error.response ? error.response.data : error.message);
         res.status(500).json({
             message: 'Failed to get response from AI.',
             error: error.message
