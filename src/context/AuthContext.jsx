@@ -8,12 +8,46 @@ export const useAuth = () => useContext(AuthContext);
 // eslint-disable-next-line react/prop-types
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    // Placeholder for future auth implementation
+    // Fetch user profile from backend using token
+    const fetchUserProfile = async (token) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/auth/profile', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const userData = await response.json();
+                setUser(userData);
+                return userData;
+            } else {
+                // Token is invalid or expired
+                localStorage.removeItem('token');
+                setUser(null);
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+            localStorage.removeItem('token');
+            setUser(null);
+            return null;
+        }
+    };
+
+    // Check for existing session on mount
     useEffect(() => {
-        // Simulate checking for a user
-        setLoading(false);
+        const initializeAuth = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                await fetchUserProfile(token);
+            }
+            setLoading(false);
+        };
+
+        initializeAuth();
     }, []);
 
     const signUp = async (data) => {
@@ -24,7 +58,7 @@ export const AuthProvider = ({ children }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    username: data.username || data.email.split('@')[0], // Fallback username
+                    username: data.username || data.email.split('@')[0],
                     email: data.email,
                     password: data.password,
                 }),
@@ -32,8 +66,13 @@ export const AuthProvider = ({ children }) => {
             const result = await response.json();
 
             if (response.ok) {
-                setUser(result);
+                // Store token and set user state
                 localStorage.setItem('token', result.token);
+                setUser({
+                    _id: result._id,
+                    username: result.username,
+                    email: result.email,
+                });
                 return { data: { user: result }, error: null };
             } else {
                 return { data: null, error: { message: result.message } };
@@ -58,8 +97,13 @@ export const AuthProvider = ({ children }) => {
             const result = await response.json();
 
             if (response.ok) {
-                setUser(result);
+                // Store token and set user state
                 localStorage.setItem('token', result.token);
+                setUser({
+                    _id: result._id,
+                    username: result.username,
+                    email: result.email,
+                });
                 return { data: { user: result }, error: null };
             } else {
                 return { data: null, error: { message: result.message } };
@@ -79,6 +123,7 @@ export const AuthProvider = ({ children }) => {
         signIn,
         signOut,
         user,
+        loading,
     };
 
     return (

@@ -1,61 +1,46 @@
 import Component from '../models/Component.js';
 
-// @desc    Get all components or filter by category
-// @route   GET /api/components?category=CategoryName
+// @desc    Get all components
+// @route   GET /api/components
 // @access  Public
 export const getComponents = async (req, res) => {
     try {
-        const { category } = req.query;
-        const filter = category ? { category } : {};
+        const { category, search, premium } = req.query;
+        let query = {};
 
-        const components = await Component.find(filter).sort({ createdAt: -1 });
+        if (category && category !== 'All') {
+            query.category = category;
+        }
 
-        res.json({
-            success: true,
-            count: components.length,
-            data: components
-        });
+        if (search) {
+            query.title = { $regex: search, $options: 'i' };
+        }
+
+        if (premium !== undefined) {
+            query.isPremium = premium === 'true';
+        }
+
+        const components = await Component.find(query).sort({ createdAt: -1 });
+        res.json(components);
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: 'Server error while fetching components',
-            message: error.message
-        });
+        res.status(500).json({ message: error.message });
     }
 };
 
-// @desc    Get single component by ID
+// @desc    Get single component
 // @route   GET /api/components/:id
 // @access  Public
 export const getComponentById = async (req, res) => {
     try {
         const component = await Component.findById(req.params.id);
 
-        if (!component) {
-            return res.status(404).json({
-                success: false,
-                error: 'Component not found'
-            });
+        if (component) {
+            res.json(component);
+        } else {
+            res.status(404).json({ message: 'Component not found' });
         }
-
-        res.json({
-            success: true,
-            data: component
-        });
     } catch (error) {
-        // Handle invalid MongoDB ObjectId
-        if (error.kind === 'ObjectId') {
-            return res.status(404).json({
-                success: false,
-                error: 'Component not found'
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            error: 'Server error while fetching component',
-            message: error.message
-        });
+        res.status(500).json({ message: error.message });
     }
 };
 
@@ -64,33 +49,27 @@ export const getComponentById = async (req, res) => {
 // @access  Public (should be protected in production)
 export const createComponent = async (req, res) => {
     try {
-        const { title, description, category, code } = req.body;
+        const { title, description, category, code, tokenPrice, isPremium, tags, difficulty } = req.body;
 
         // Validation
         if (!title || !description || !category || !code) {
-            return res.status(400).json({
-                success: false,
-                error: 'Please provide all required fields: title, description, category, code'
-            });
+            return res.status(400).json({ message: 'Please provide all required fields' });
         }
 
         const component = await Component.create({
             title,
             description,
             category,
-            code
+            code,
+            tokenPrice: tokenPrice || 10,
+            isPremium: isPremium !== undefined ? isPremium : true,
+            tags: tags || [],
+            difficulty: difficulty || 'intermediate'
         });
 
-        res.status(201).json({
-            success: true,
-            data: component
-        });
+        res.status(201).json(component);
     } catch (error) {
-        res.status(400).json({
-            success: false,
-            error: 'Error creating component',
-            message: error.message
-        });
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -109,29 +88,12 @@ export const updateComponent = async (req, res) => {
         );
 
         if (!component) {
-            return res.status(404).json({
-                success: false,
-                error: 'Component not found'
-            });
+            return res.status(404).json({ message: 'Component not found' });
         }
 
-        res.json({
-            success: true,
-            data: component
-        });
+        res.json(component);
     } catch (error) {
-        if (error.kind === 'ObjectId') {
-            return res.status(404).json({
-                success: false,
-                error: 'Component not found'
-            });
-        }
-
-        res.status(400).json({
-            success: false,
-            error: 'Error updating component',
-            message: error.message
-        });
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -143,29 +105,11 @@ export const deleteComponent = async (req, res) => {
         const component = await Component.findByIdAndDelete(req.params.id);
 
         if (!component) {
-            return res.status(404).json({
-                success: false,
-                error: 'Component not found'
-            });
+            return res.status(404).json({ message: 'Component not found' });
         }
 
-        res.json({
-            success: true,
-            data: {},
-            message: 'Component deleted successfully'
-        });
+        res.json({ message: 'Component deleted successfully' });
     } catch (error) {
-        if (error.kind === 'ObjectId') {
-            return res.status(404).json({
-                success: false,
-                error: 'Component not found'
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            error: 'Error deleting component',
-            message: error.message
-        });
+        res.status(500).json({ message: error.message });
     }
 };

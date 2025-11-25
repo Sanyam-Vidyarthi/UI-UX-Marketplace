@@ -1,9 +1,17 @@
 import React from 'react';
 import Button from './Button';
 import ComponentPreview from './ComponentPreview';
+import { useWallet } from '../context/WalletContext';
+import { Lock } from 'lucide-react';
 
 const ComponentModal = ({ component, onClose, onCopy }) => {
+    const { isOwned, purchaseComponent, loading } = useWallet();
+
     if (!component) return null;
+
+    const owned = isOwned(component._id);
+    const isPremium = component.isPremium;
+    const canViewCode = owned || !isPremium;
 
     const codeSnippet = component.code || `
 // ${component.title}
@@ -23,6 +31,17 @@ const ComponentModal = ({ component, onClose, onCopy }) => {
             if (onCopy) onCopy();
         } catch (err) {
             console.error('Failed to copy:', err);
+        }
+    };
+
+    const handlePurchase = async () => {
+        if (confirm(`Purchase ${component.title} for ${component.tokenPrice} tokens?`)) {
+            const result = await purchaseComponent(component._id);
+            if (result.success) {
+                // Success handled by context/toast usually, but we can force update or just let react reactivity handle it
+            } else {
+                alert(result.message);
+            }
         }
     };
 
@@ -85,17 +104,55 @@ const ComponentModal = ({ component, onClose, onCopy }) => {
                     </div>
 
                     <h3 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>Source Code</h3>
-                    <div style={{
-                        background: '#0d0d0d',
-                        padding: '1.5rem',
-                        borderRadius: '12px',
-                        fontFamily: 'monospace',
-                        fontSize: '0.9rem',
-                        color: '#e5e5e5',
-                        overflowX: 'auto',
-                        border: '1px solid var(--border-subtle)'
-                    }}>
-                        <pre>{codeSnippet}</pre>
+
+                    <div style={{ position: 'relative' }}>
+                        <div style={{
+                            background: '#0d0d0d',
+                            padding: '1.5rem',
+                            borderRadius: '12px',
+                            fontFamily: 'monospace',
+                            fontSize: '0.9rem',
+                            color: '#e5e5e5',
+                            overflowX: 'auto',
+                            border: '1px solid var(--border-subtle)',
+                            filter: canViewCode ? 'none' : 'blur(8px)',
+                            userSelect: canViewCode ? 'auto' : 'none',
+                            opacity: canViewCode ? 1 : 0.5,
+                            minHeight: '150px'
+                        }}>
+                            <pre>{canViewCode ? codeSnippet : 'Code hidden. Purchase to unlock.'}</pre>
+                        </div>
+
+                        {!canViewCode && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                gap: '1rem',
+                                zIndex: 10
+                            }}>
+                                <div style={{
+                                    background: 'rgba(0,0,0,0.8)',
+                                    padding: '1rem 2rem',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--border-highlight)',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '0.5rem'
+                                }}>
+                                    <Lock size={24} className="text-amber-400" />
+                                    <span className="text-white font-medium">Premium Component</span>
+                                    <Button variant="primary" onClick={handlePurchase} disabled={loading}>
+                                        Unlock for {component.tokenPrice} Tokens
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -108,7 +165,9 @@ const ComponentModal = ({ component, onClose, onCopy }) => {
                     gap: '1rem'
                 }}>
                     <Button variant="secondary" onClick={onClose}>Close</Button>
-                    <Button variant="primary" onClick={handleCopy}>Copy Code</Button>
+                    {canViewCode && (
+                        <Button variant="primary" onClick={handleCopy}>Copy Code</Button>
+                    )}
                 </div>
             </div>
         </div>

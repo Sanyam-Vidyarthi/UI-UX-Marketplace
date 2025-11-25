@@ -19,6 +19,26 @@ const componentSchema = new mongoose.Schema({
     code: {
         type: String,
         required: [true, 'Component code is required']
+    },
+    tokenPrice: {
+        type: Number,
+        default: 10,
+        min: 0
+    },
+    isPremium: {
+        type: Boolean,
+        default: true
+    },
+    downloads: {
+        type: Number,
+        default: 0
+    },
+    tags: [String],
+    previewImage: String,
+    difficulty: {
+        type: String,
+        enum: ['beginner', 'intermediate', 'advanced'],
+        default: 'intermediate'
     }
 }, {
     timestamps: true

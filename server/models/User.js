@@ -22,6 +22,33 @@ const userSchema = new mongoose.Schema({
         required: true,
         minlength: 6
     },
+    tokens: {
+        type: Number,
+        default: 50, // Welcome bonus
+        min: 0
+    },
+    totalSpent: {
+        type: Number,
+        default: 0
+    },
+    totalEarned: {
+        type: Number,
+        default: 0
+    },
+    avatar: {
+        type: String,
+        default: ''
+    },
+    bio: {
+        type: String,
+        default: '',
+        maxlength: 500
+    },
+    role: {
+        type: String,
+        enum: ['user', 'admin'],
+        default: 'user'
+    },
     createdAt: {
         type: Date,
         default: Date.now

@@ -28,11 +28,13 @@ const MarketplacePage = () => {
             const response = await fetch('http://localhost:5000/api/components');
             const data = await response.json();
 
-            if (data.success) {
+            if (Array.isArray(data)) {
+                setComponents(data);
+            } else if (data.success) {
                 setComponents(data.data);
             } else {
                 // Fallback to local data if API fails but returns valid JSON
-                console.warn('API returned success: false', data);
+                console.warn('API returned unexpected format', data);
                 setComponents(initialComponents);
             }
         } catch (error) {

@@ -35,34 +35,22 @@ const LoginPage = () => {
                     password: formData.password,
                 });
                 if (error) throw error;
-                if (!data.session) throw new Error('No session created. Please check your email for verification.');
 
-                // Navigate to home only if session exists
+                // Navigate to home on successful login
                 navigate('/');
             } else {
                 const { data, error } = await signUp({
                     email: formData.email,
                     password: formData.password,
-                    options: {
-                        data: {
-                            username: formData.username,
-                        },
-                    },
+                    username: formData.username,
                 });
                 if (error) throw error;
 
-                // Check if session was created (auto-confirm off) or not (email verification needed)
-                if (data.session) {
-                    navigate('/');
-                } else {
-                    // Show message to check email
-                    setError('Account created! Please check your email to verify your account before logging in.');
-                    setIsLoading(false);
-                    return; // Stop here, don't navigate
-                }
+                // Navigate to home on successful signup
+                navigate('/');
             }
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'An error occurred. Please try again.');
         } finally {
             setIsLoading(false);
         }

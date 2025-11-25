@@ -24,9 +24,9 @@ const Footer = () => {
                     <div>
                         <h4 className="text-white font-semibold mb-6 text-lg">Product</h4>
                         <ul className="space-y-4 text-gray-400">
-                            <li><a href="#" className="hover:text-white transition-colors">Components</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Templates</a></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
+                            <li><a href="/marketplace" className="hover:text-white transition-colors">Components</a></li>
+                            <li><a href="/marketplace?category=Templates" className="hover:text-white transition-colors">Templates</a></li>
+                            <li><a href="/pricing" className="hover:text-white transition-colors">Pricing</a></li>
                             <li><a href="#" className="hover:text-white transition-colors">Changelog</a></li>
                         </ul>
                     </div>
