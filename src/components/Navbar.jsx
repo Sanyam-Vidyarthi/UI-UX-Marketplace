@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Button from './Button';
 import { Logo } from './Logo';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { user, signOut } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -20,6 +22,12 @@ const Navbar = () => {
 
     const handleLogoClick = (e) => {
         e.preventDefault();
+        navigate('/');
+        setMobileMenuOpen(false);
+    };
+
+    const handleLogout = async () => {
+        await signOut();
         navigate('/');
         setMobileMenuOpen(false);
     };
@@ -59,19 +67,37 @@ const Navbar = () => {
                     </div>
 
                     <div className="hidden md:flex items-center gap-4">
-                        <Button
-                            variant="ghost"
-                            className="text-zinc-400 hover:text-white"
-                            onClick={() => navigate('/login')}
-                        >
-                            Log In
-                        </Button>
-                        <Button
-                            variant="primary"
-                            className="py-2 px-5 text-sm shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40"
-                        >
-                            Get All Access
-                        </Button>
+                        {user ? (
+                            <div className="flex items-center gap-4">
+                                <span className="text-zinc-400 text-sm flex items-center gap-2">
+                                    <User size={16} />
+                                    {user.email}
+                                </span>
+                                <Button
+                                    variant="ghost"
+                                    className="text-zinc-400 hover:text-white"
+                                    onClick={handleLogout}
+                                >
+                                    Log Out
+                                </Button>
+                            </div>
+                        ) : (
+                            <>
+                                <Button
+                                    variant="ghost"
+                                    className="text-zinc-400 hover:text-white"
+                                    onClick={() => navigate('/login')}
+                                >
+                                    Log In
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    className="py-2 px-5 text-sm shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40"
+                                >
+                                    Get All Access
+                                </Button>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Toggle */}
@@ -99,22 +125,37 @@ const Navbar = () => {
                         </Link>
                     ))}
                     <div className="flex flex-col gap-4 w-full max-w-xs mt-8">
-                        <Button
-                            variant="ghost"
-                            className="w-full justify-center text-zinc-400"
-                            onClick={() => {
-                                navigate('/login');
-                                setMobileMenuOpen(false);
-                            }}
-                        >
-                            Log In
-                        </Button>
-                        <Button
-                            variant="primary"
-                            className="w-full justify-center"
-                        >
-                            Get All Access
-                        </Button>
+                        {user ? (
+                            <>
+                                <div className="text-center text-zinc-400 mb-2">{user.email}</div>
+                                <Button
+                                    variant="ghost"
+                                    className="w-full justify-center text-zinc-400"
+                                    onClick={handleLogout}
+                                >
+                                    Log Out
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button
+                                    variant="ghost"
+                                    className="w-full justify-center text-zinc-400"
+                                    onClick={() => {
+                                        navigate('/login');
+                                        setMobileMenuOpen(false);
+                                    }}
+                                >
+                                    Log In
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    className="w-full justify-center"
+                                >
+                                    Get All Access
+                                </Button>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

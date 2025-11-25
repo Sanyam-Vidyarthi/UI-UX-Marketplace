@@ -5,6 +5,7 @@ import connectDB from './db.js';
 import componentRoutes from './routes/componentRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import { errorHandler } from './middleware/errorMiddleware.js';
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ app.get('/', (req, res) => {
 app.use('/api/components', componentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
+
+app.use(errorHandler);
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);

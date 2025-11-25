@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import ComponentCard from '../components/ComponentCard';
 import ComponentModal from '../components/ComponentModal';
 import Toast from '../components/Toast';
 import Footer from '../components/Footer';
-import { components } from '../data/components';
+import { components as initialComponents } from '../data/components'; // Fallback data
+
 import { motion } from "motion/react";
-import { Search, Filter, Sparkles, Grid, List, Zap, Layers } from 'lucide-react';
+import { Search, Filter, Sparkles, Grid, List, Zap, Layers, Loader2 } from 'lucide-react';
 
 const MarketplacePage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -14,6 +15,34 @@ const MarketplacePage = () => {
     const [selectedComponent, setSelectedComponent] = useState(null);
     const [showToast, setShowToast] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
+    const [components, setComponents] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchComponents();
+    }, []);
+
+    const fetchComponents = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch('http://localhost:5000/api/components');
+            const data = await response.json();
+
+            if (data.success) {
+                setComponents(data.data);
+            } else {
+                // Fallback to local data if API fails but returns valid JSON
+                console.warn('API returned success: false', data);
+                setComponents(initialComponents);
+            }
+        } catch (error) {
+            console.error('Error fetching components:', error);
+            // Fallback on error
+            setComponents(initialComponents);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const categories = ['All', ...new Set(components.map(c => c.category))];
 
@@ -97,8 +126,8 @@ const MarketplacePage = () => {
                                             key={category}
                                             onClick={() => setSelectedCategory(category)}
                                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border ${selectedCategory === category
-                                                    ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-105'
-                                                    : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20'
+                                                ? 'bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-105'
+                                                : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20'
                                                 }`}
                                         >
                                             {category}

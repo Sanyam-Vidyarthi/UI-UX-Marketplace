@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from "motion/react";
 import { Mail, Lock, User, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { signIn, signUp } = useAuth();
 
     const [formData, setFormData] = useState({
         username: '',
@@ -26,31 +28,39 @@ const LoginPage = () => {
         setIsLoading(true);
         setError('');
 
-        const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-        const body = isLogin
-            ? { email: formData.email, password: formData.password }
-            : formData;
-
         try {
-            const response = await fetch(`http://localhost:5000${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(body),
-            });
+            if (isLogin) {
+                const { data, error } = await signIn({
+                    email: formData.email,
+                    password: formData.password,
+                });
+                if (error) throw error;
+                if (!data.session) throw new Error('No session created. Please check your email for verification.');
 
-            const data = await response.json();
+                // Navigate to home only if session exists
+                navigate('/');
+            } else {
+                const { data, error } = await signUp({
+                    email: formData.email,
+                    password: formData.password,
+                    options: {
+                        data: {
+                            username: formData.username,
+                        },
+                    },
+                });
+                if (error) throw error;
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Something went wrong');
+                // Check if session was created (auto-confirm off) or not (email verification needed)
+                if (data.session) {
+                    navigate('/');
+                } else {
+                    // Show message to check email
+                    setError('Account created! Please check your email to verify your account before logging in.');
+                    setIsLoading(false);
+                    return; // Stop here, don't navigate
+                }
             }
-
-            // Store token (in real app, use context/secure storage)
-            localStorage.setItem('userInfo', JSON.stringify(data));
-
-            // Navigate to home
-            navigate('/');
         } catch (err) {
             setError(err.message);
         } finally {
