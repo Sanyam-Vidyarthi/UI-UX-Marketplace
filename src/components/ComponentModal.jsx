@@ -10,8 +10,8 @@ const ComponentModal = ({ component, onClose, onCopy }) => {
     if (!component) return null;
 
     const owned = isOwned(component._id);
-    const isPremium = component.isPremium;
-    const canViewCode = owned || !isPremium;
+    // ALL components require purchase - no free code access
+    const canViewCode = owned;
 
     const codeSnippet = component.code || `
 // ${component.title}
@@ -146,7 +146,8 @@ const ComponentModal = ({ component, onClose, onCopy }) => {
                                     gap: '0.5rem'
                                 }}>
                                     <Lock size={24} className="text-amber-400" />
-                                    <span className="text-white font-medium">Premium Component</span>
+                                    <span className="text-white font-medium">Purchase Required</span>
+                                    <span className="text-gray-400 text-sm">{component.tokenPrice || 10} tokens</span>
                                     <Button variant="primary" onClick={handlePurchase} disabled={loading}>
                                         Unlock for {component.tokenPrice} Tokens
                                     </Button>
